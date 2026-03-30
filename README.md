@@ -1,6 +1,6 @@
 # MTIT Assignment 2 — University Management System (Microservices)
 
-This repository contains the Student Management microservice and an API Gateway for the University Management System domain. Both services are written in Node.js/Express and ship with OpenAPI/Swagger UI for quick inspection and testing.
+This repository contains the Student Management microservice, Course Management microservice, and an API Gateway for the University Management System domain. All services are written in Node.js/Express and ship with OpenAPI/Swagger UI for quick inspection and testing.
 
 ## Project layout
 
@@ -8,6 +8,11 @@ This repository contains the Student Management microservice and an API Gateway 
   - `src/index.js` — Express app entry point
   - `src/routes/students.js` — REST endpoints
   - `src/data/students.js` — In-memory data store
+  - `src/docs/swagger.js` — OpenAPI specification used by Swagger UI
+- `course-service/` — Node.js microservice for Course Management
+  - `src/index.js` — Express app entry point
+  - `src/routes/courses.js` — REST endpoints
+  - `src/data/courses.js` — In-memory data store
   - `src/docs/swagger.js` — OpenAPI specification used by Swagger UI
 - `api-gateway/` — API Gateway that fronts the microservices
   - `src/index.js` — Gateway entry point and proxy configuration
@@ -27,6 +32,16 @@ npm run start   # or: npm run dev (with nodemon)
 
 The service starts on `http://localhost:3001` by default. You can override the port via the `PORT` environment variable.
 
+## Install and run the course service
+
+```bash
+cd course-service
+npm install
+npm run start   # or: npm run dev (with nodemon)
+```
+
+The service starts on `http://localhost:3002` by default. You can override the port via the `PORT` environment variable.
+
 ## Install and run the API Gateway
 
 ```bash
@@ -39,13 +54,20 @@ The gateway starts on `http://localhost:3000` by default. You can override the p
 
 ## Available endpoints
 
-- `GET /health` — Basic service health check
-- `GET /api/students` — List students
-- `GET /api/students/{id}` — Fetch a single student
-- `GET /api/students/{id}/enrollment` — Fetch only enrollment status for a student
-- `POST /api/students` — Create a student (requires `name`, `email`)
-- `PUT /api/students/{id}` — Update student details or enrollment status
-- `DELETE /api/students/{id}` — Remove a student
+- Students (student-service)
+  - `GET /api/students` — List students
+  - `GET /api/students/{id}` — Fetch a single student
+  - `GET /api/students/{id}/enrollment` — Fetch only enrollment status for a student
+  - `POST /api/students` — Create a student (requires `name`, `email`)
+  - `PUT /api/students/{id}` — Update student details or enrollment status
+  - `DELETE /api/students/{id}` — Remove a student
+
+- Courses (course-service)
+  - `GET /api/courses` — List courses
+  - `GET /api/courses/{id}` — Fetch a single course
+  - `POST /api/courses` — Create a course (requires `courseName`, `courseCode`, `credits`, `lecturerId`)
+  - `PUT /api/courses/{id}` — Update course details
+  - `DELETE /api/courses/{id}` — Remove a course
 
 ### API Gateway endpoints
 
@@ -61,6 +83,7 @@ The gateway starts on `http://localhost:3000` by default. You can override the p
 ## Swagger UI
 
 - Student service docs: `http://localhost:3001/docs`
+- Course service docs: `http://localhost:3002/docs`
 - API Gateway docs: `http://localhost:3000/docs`
 
 ## Notes for the future API Gateway
