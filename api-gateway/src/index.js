@@ -17,36 +17,41 @@ const services = {
   student: {
     target: "http://localhost:3001",
     pathFilter: "/api/students",
-    name: "Student Service"
+    name: "Student Service",
   },
   course: {
     target: "http://localhost:3002",
     pathFilter: "/api/courses",
-    name: "Course Service"
+    name: "Course Service",
+  },
+  attendance: {
+    target: "http://localhost:3005",
+    pathFilter: "/api/attendance",
+    name: "Attendance Service",
   },
   faculty: {
     target: "http://localhost:3003",
     pathFilter: "/api/faculty",
-    name: "Faculty Service"
+    name: "Faculty Service",
   },
   examination: {
     target: "http://localhost:3004",
     pathFilter: "/api/examinations",
-    name: "Examination Service"
-  }
+    name: "Examination Service",
+  },
 };
 
 // Health check endpoint for the gateway
 app.get("/health", (req, res) => {
-  res.json({ 
-    status: "ok", 
+  res.json({
+    status: "ok",
     service: "api-gateway",
     timestamp: new Date().toISOString(),
-    availableServices: Object.keys(services).map(key => ({
+    availableServices: Object.keys(services).map((key) => ({
       name: services[key].name,
       path: services[key].pathFilter,
-      target: services[key].target
-    }))
+      target: services[key].target,
+    })),
   });
 });
 
@@ -56,9 +61,9 @@ app.get("/", (req, res) => {
 });
 
 // Create proxy middleware for each service
-Object.keys(services).forEach(serviceKey => {
+Object.keys(services).forEach((serviceKey) => {
   const service = services[serviceKey];
-  
+
   app.use(
     service.pathFilter,
     createProxyMiddleware({
@@ -70,22 +75,26 @@ Object.keys(services).forEach(serviceKey => {
         res.status(503).json({
           message: `Service temporarily unavailable: ${service.name}`,
           error: err.message,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       },
       onProxyReq: (proxyReq, req, res) => {
         console.log(`[${service.name}] ${req.method} ${req.url}`);
-      }
-    })
+      },
+    }),
   );
 });
 
 // Swagger UI setup
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
-  explorer: true,
-  customCss: ".swagger-ui .topbar { display: none }",
-  customSiteTitle: "University API Gateway"
-}));
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "University API Gateway",
+  }),
+);
 
 // API documentation endpoint (JSON)
 app.get("/api-docs.json", (req, res) => {
@@ -95,10 +104,10 @@ app.get("/api-docs.json", (req, res) => {
 
 // Error handling for unmatched routes
 app.use((req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     message: "Route not found",
     hint: "Visit /docs for available API endpoints",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -108,7 +117,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     message: "Internal gateway error",
     error: process.env.NODE_ENV === "development" ? err.message : undefined,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -122,8 +131,10 @@ app.listen(port, () => {
   console.log(`║  Health Check: http://localhost:${port}/health`);
   console.log(`╠═══════════════════════════════════════════════════════════╣`);
   console.log(`║  Configured Services:`);
-  Object.keys(services).forEach(key => {
-    console.log(`║    - ${services[key].name.padEnd(25)} ${services[key].target}`);
+  Object.keys(services).forEach((key) => {
+    console.log(
+      `║    - ${services[key].name.padEnd(25)} ${services[key].target}`,
+    );
   });
   console.log(`╚═══════════════════════════════════════════════════════════╝`);
 });
