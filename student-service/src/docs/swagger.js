@@ -1,203 +1,264 @@
 const swaggerDocument = {
-  openapi: '3.0.1',
+  openapi: "3.0.1",
   info: {
-    title: 'Student Management API',
-    description: 'Microservice for student registration, details, and enrollment status.',
-    version: '1.0.0'
+    title: "Student Management API",
+    description:
+      "Microservice for student registration, details, and enrollment status.",
+    version: "1.0.0",
   },
   servers: [
     {
-      url: 'http://localhost:3001',
-      description: 'Local student service'
-    }
+      url: "http://localhost:3001",
+      description: "Local student service",
+    },
   ],
   tags: [
-    { name: 'Students', description: 'Student records and enrollment status' }
+    { name: "Students", description: "Student records and enrollment status" },
   ],
   paths: {
-    '/health': {
+    "/health": {
       get: {
-        tags: ['System'],
-        summary: 'Health check',
+        tags: ["System"],
+        summary: "Health check",
         responses: {
-          200: { description: 'Service is healthy' }
-        }
-      }
+          200: { description: "Service is healthy" },
+        },
+      },
     },
-    '/api/students': {
+    "/api/students": {
       get: {
-        tags: ['Students'],
-        summary: 'List all students',
+        tags: ["Students"],
+        summary: "List all students",
         responses: {
           200: {
-            description: 'Student list',
+            description: "Student list",
             content: {
-              'application/json': {
-                schema: { type: 'array', items: { $ref: '#/components/schemas/Student' } }
-              }
-            }
-          }
-        }
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Student" },
+                },
+              },
+            },
+          },
+        },
       },
       post: {
-        tags: ['Students'],
-        summary: 'Create a new student',
+        tags: ["Students"],
+        summary: "Create a new student",
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/StudentInput'
-              }
-            }
-          }
+                $ref: "#/components/schemas/StudentInput",
+              },
+            },
+          },
         },
         responses: {
           201: {
-            description: 'Created student',
+            description: "Created student",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Student' }
-              }
-            }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Student" },
+              },
+            },
           },
-          400: { description: 'Invalid payload' }
-        }
-      }
+          400: { description: "Invalid payload" },
+        },
+      },
     },
-    '/api/students/{id}': {
+    "/api/students/{id}": {
       get: {
-        tags: ['Students'],
-        summary: 'Get a student by id',
+        tags: ["Students"],
+        summary: "Get a student by id",
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           200: {
-            description: 'Student found',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/Student' } } }
+            description: "Student found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Student" },
+              },
+            },
           },
-          404: { description: 'Not found' }
-        }
+          404: { description: "Not found" },
+        },
       },
       put: {
-        tags: ['Students'],
-        summary: 'Update an existing student',
+        tags: ["Students"],
+        summary: "Update an existing student",
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
           content: {
-            'application/json': { schema: { $ref: '#/components/schemas/StudentUpdate' } }
-          }
+            "application/json": {
+              schema: { $ref: "#/components/schemas/StudentUpdate" },
+            },
+          },
         },
         responses: {
           200: {
-            description: 'Updated student',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/Student' } } }
+            description: "Updated student",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Student" },
+              },
+            },
           },
-          400: { description: 'Invalid payload' },
-          404: { description: 'Not found' }
-        }
+          400: { description: "Invalid payload" },
+          404: { description: "Not found" },
+        },
       },
       delete: {
-        tags: ['Students'],
-        summary: 'Remove a student',
+        tags: ["Students"],
+        summary: "Remove a student",
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
-          204: { description: 'Deleted' },
-          404: { description: 'Not found' }
-        }
-      }
+          204: { description: "Deleted" },
+          404: { description: "Not found" },
+        },
+      },
     },
-    '/api/students/{id}/enrollment': {
+    "/api/students/{id}/enrollment": {
       get: {
-        tags: ['Students'],
-        summary: 'Get enrollment status for a student',
+        tags: ["Students"],
+        summary: "Get enrollment status for a student",
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           200: {
-            description: 'Enrollment status',
+            description: "Enrollment status",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    id: { type: 'string' },
-                    enrollmentStatus: { type: 'string' }
-                  }
-                }
-              }
-            }
+                    id: { type: "string" },
+                    enrollmentStatus: { type: "string" },
+                  },
+                },
+              },
+            },
           },
-          404: { description: 'Not found' }
-        }
-      }
-    }
+          404: { description: "Not found" },
+        },
+      },
+    },
   },
   components: {
     schemas: {
       Student: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          email: { type: 'string', format: 'email' },
-          departmentId: { type: 'string', nullable: true },
-          enrollmentStatus: { type: 'string', enum: ['active', 'pending', 'inactive', 'graduated'] },
-          year: { type: 'integer', minimum: 1 },
-          gender: {
-            type: 'string',
-            enum: ['male', 'female', 'non-binary', 'other', 'prefer-not-to-say'],
-            nullable: true
+          id: { type: "string" },
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string", nullable: true },
+          enrollmentStatus: {
+            type: "string",
+            enum: ["active", "pending", "inactive", "graduated"],
           },
-          dateOfBirth: { type: 'string', format: 'date', nullable: true },
-          phoneNumber: { type: 'string', nullable: true },
-          address: { type: 'string', nullable: true }
-        }
+          year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+            nullable: true,
+          },
+          dateOfBirth: { type: "string", format: "date", nullable: true },
+          phoneNumber: { type: "string", nullable: true },
+          address: { type: "string", nullable: true },
+        },
       },
       StudentInput: {
-        type: 'object',
-        required: ['name', 'email'],
+        type: "object",
+        required: ["name", "email"],
         properties: {
-          name: { type: 'string' },
-          email: { type: 'string', format: 'email' },
-          departmentId: { type: 'string' },
-          enrollmentStatus: { type: 'string', enum: ['active', 'pending', 'inactive', 'graduated'] },
-          year: { type: 'integer', minimum: 1, default: 1 },
-          gender: {
-            type: 'string',
-            enum: ['male', 'female', 'non-binary', 'other', 'prefer-not-to-say']
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string" },
+          enrollmentStatus: {
+            type: "string",
+            enum: ["active", "pending", "inactive", "graduated"],
           },
-          dateOfBirth: { type: 'string', format: 'date' },
-          phoneNumber: { type: 'string' },
-          address: { type: 'string' }
-        }
+          year: { type: "integer", minimum: 1, default: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
+        },
       },
       StudentUpdate: {
-        type: 'object',
+        type: "object",
         properties: {
-          name: { type: 'string' },
-          email: { type: 'string', format: 'email' },
-          departmentId: { type: 'string' },
-          enrollmentStatus: { type: 'string', enum: ['active', 'pending', 'inactive', 'graduated'] },
-          year: { type: 'integer', minimum: 1 },
-          gender: {
-            type: 'string',
-            enum: ['male', 'female', 'non-binary', 'other', 'prefer-not-to-say']
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string" },
+          enrollmentStatus: {
+            type: "string",
+            enum: ["active", "pending", "inactive", "graduated"],
           },
-          dateOfBirth: { type: 'string', format: 'date' },
-          phoneNumber: { type: 'string' },
-          address: { type: 'string' }
-        }
-      }
-    }
-  }
+          year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
+        },
+      },
+    },
+  },
 };
 
 module.exports = swaggerDocument;

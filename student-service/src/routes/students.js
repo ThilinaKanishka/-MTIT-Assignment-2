@@ -81,7 +81,9 @@ function validateStudent(req, res, next) {
   if (dateOfBirth !== undefined) {
     const timestamp = Date.parse(dateOfBirth);
     if (Number.isNaN(timestamp)) {
-      return res.status(400).json({ message: "dateOfBirth must be a valid date" });
+      return res
+        .status(400)
+        .json({ message: "dateOfBirth must be a valid date" });
     }
   }
 
@@ -91,11 +93,15 @@ function validateStudent(req, res, next) {
   ) {
     return res
       .status(400)
-      .json({ message: "phoneNumber must contain digits and optional +, -, or spaces" });
+      .json({
+        message: "phoneNumber must contain digits and optional +, -, or spaces",
+      });
   }
 
   if (address !== undefined && String(address).trim().length < 3) {
-    return res.status(400).json({ message: "address must be at least 3 characters" });
+    return res
+      .status(400)
+      .json({ message: "address must be at least 3 characters" });
   }
 
   return next();
