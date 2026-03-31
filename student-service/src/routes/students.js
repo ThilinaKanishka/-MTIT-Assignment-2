@@ -10,6 +10,13 @@ const {
 } = require("../data/students");
 
 const allowedStatuses = ["active", "pending", "inactive", "graduated"];
+const allowedGenders = [
+  "male",
+  "female",
+  "non-binary",
+  "other",
+  "prefer-not-to-say",
+];
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -17,7 +24,16 @@ function isValidEmail(value) {
 
 // Basic payload validation to keep the sample consistent
 function validateStudent(req, res, next) {
-  const { name, email, enrollmentStatus, year } = req.body;
+  const {
+    name,
+    email,
+    enrollmentStatus,
+    year,
+    gender,
+    dateOfBirth,
+    phoneNumber,
+    address,
+  } = req.body;
   const isCreate = req.method === "POST";
 
   if (isCreate) {
@@ -31,6 +47,10 @@ function validateStudent(req, res, next) {
       "departmentId",
       "enrollmentStatus",
       "year",
+      "gender",
+      "dateOfBirth",
+      "phoneNumber",
+      "address",
     ].some((field) => req.body[field] !== undefined);
     if (!hasUpdatableField) {
       return res
@@ -52,6 +72,30 @@ function validateStudent(req, res, next) {
     (!Number.isInteger(Number(year)) || Number(year) <= 0)
   ) {
     return res.status(400).json({ message: "year must be a positive integer" });
+  }
+
+  if (gender !== undefined && !allowedGenders.includes(gender)) {
+    return res.status(400).json({ message: "Invalid gender value" });
+  }
+
+  if (dateOfBirth !== undefined) {
+    const timestamp = Date.parse(dateOfBirth);
+    if (Number.isNaN(timestamp)) {
+      return res.status(400).json({ message: "dateOfBirth must be a valid date" });
+    }
+  }
+
+  if (
+    phoneNumber !== undefined &&
+    !/^[+]?[- 0-9]{7,20}$/.test(String(phoneNumber))
+  ) {
+    return res
+      .status(400)
+      .json({ message: "phoneNumber must contain digits and optional +, -, or spaces" });
+  }
+
+  if (address !== undefined && String(address).trim().length < 3) {
+    return res.status(400).json({ message: "address must be at least 3 characters" });
   }
 
   return next();
