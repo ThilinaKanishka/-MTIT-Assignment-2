@@ -9,9 +9,9 @@ This gateway consolidates access to:
 - Student Service (Available)
 - Course Service (Available)
 - Department Service (Available)
-- Lecturer  Service (Coming Soon)
+- Lecturer Service (Coming Soon)
 - Enrollment Service (Coming Soon)
-- Attendance  Service (Coming Soon)
+- Attendance Service (Available)
 
 All services are accessible through a single port (3000).
     `,
@@ -30,6 +30,7 @@ All services are accessible through a single port (3000).
     { name: "Students", description: "Student records and enrollment status" },
     { name: "Courses", description: "Course catalogue management" },
     { name: "Departments", description: "Department management and organization" },
+    { name: "Attendance", description: "Lecturer attendance records" },
     { name: "System", description: "Health check and system endpoints" },
   ],
   paths: {
@@ -465,6 +466,128 @@ All services are accessible through a single port (3000).
         },
       },
     },
+    "/api/attendance": {
+      get: {
+        tags: ["Attendance"],
+        summary: "List all attendance records",
+        responses: {
+          200: {
+            description: "Attendance list",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Attendance" },
+                },
+              },
+            },
+          },
+          503: { description: "Attendance service unavailable" },
+        },
+      },
+      post: {
+        tags: ["Attendance"],
+        summary: "Create a new attendance record",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/AttendanceInput",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created attendance record",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Attendance" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          503: { description: "Attendance service unavailable" },
+        },
+      },
+    },
+    "/api/attendance/{id}": {
+      get: {
+        tags: ["Attendance"],
+        summary: "Get attendance by id",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Attendance found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Attendance" },
+              },
+            },
+          },
+          404: { description: "Not found" },
+          503: { description: "Attendance service unavailable" },
+        },
+      },
+      put: {
+        tags: ["Attendance"],
+        summary: "Update attendance",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AttendanceUpdate" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Updated attendance",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Attendance" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          404: { description: "Not found" },
+          503: { description: "Attendance service unavailable" },
+        },
+      },
+      delete: {
+        tags: ["Attendance"],
+        summary: "Delete attendance",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          204: { description: "Deleted" },
+          404: { description: "Not found" },
+          503: { description: "Attendance service unavailable" },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -566,6 +689,41 @@ All services are accessible through a single port (3000).
         properties: {
           department_name: { type: "string" },
           head_of_department: { type: "string" },
+        },
+      },
+      Attendance: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          lecturerId: { type: "string" },
+          name: { type: "string" },
+          moduleId: { type: "string" },
+          date: { type: "string", format: "date" },
+          timeIn: { type: "string", example: "09:00" },
+          timeOut: { type: "string", nullable: true, example: "16:00" },
+        },
+      },
+      AttendanceInput: {
+        type: "object",
+        required: ["lecturerId", "name", "moduleId", "date", "timeIn"],
+        properties: {
+          lecturerId: { type: "string" },
+          name: { type: "string" },
+          moduleId: { type: "string" },
+          date: { type: "string", format: "date" },
+          timeIn: { type: "string", example: "09:00" },
+          timeOut: { type: "string", nullable: true, example: "16:00" },
+        },
+      },
+      AttendanceUpdate: {
+        type: "object",
+        properties: {
+          lecturerId: { type: "string" },
+          name: { type: "string" },
+          moduleId: { type: "string" },
+          date: { type: "string", format: "date" },
+          timeIn: { type: "string", example: "09:00" },
+          timeOut: { type: "string", nullable: true, example: "16:00" },
         },
       },
       Error: {
