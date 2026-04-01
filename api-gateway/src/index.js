@@ -25,24 +25,14 @@ const services = {
     name: "Course Service",
   },
   attendance: {
-    target: "http://localhost:3005",
+    target: "http://localhost:3003",
     pathFilter: "/api/attendance",
     name: "Attendance Service",
   },
   department: {
     target: "http://localhost:3005",
     pathFilter: "/api/departments",
-    name: "Department Service"
-  },
-  faculty: {
-    target: "http://localhost:3003",
-    pathFilter: "/api/faculty",
-    name: "Faculty Service",
-  },
-  examination: {
-    target: "http://localhost:3004",
-    pathFilter: "/api/examinations",
-    name: "Examination Service",
+    name: "Department Service",
   },
 };
 

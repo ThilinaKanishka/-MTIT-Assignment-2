@@ -7,7 +7,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "http://localhost:3005",
+      url: "http://localhost:3003",
       description: "Local attendance service",
     },
   ],
