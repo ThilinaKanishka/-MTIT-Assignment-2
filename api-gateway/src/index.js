@@ -29,6 +29,11 @@ const services = {
     pathFilter: "/api/attendance",
     name: "Attendance Service",
   },
+  department: {
+    target: "http://localhost:3005",
+    pathFilter: "/api/departments",
+    name: "Department Service"
+  },
   faculty: {
     target: "http://localhost:3003",
     pathFilter: "/api/faculty",

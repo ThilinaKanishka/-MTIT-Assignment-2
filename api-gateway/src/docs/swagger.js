@@ -8,10 +8,10 @@ Centralized API Gateway for all University Management microservices.
 This gateway consolidates access to:
 - Student Service (Available)
 - Course Service (Available)
-- Lecturer  Service (Coming Soon)
+- Department Service (Available)
+- Lecturer Service (Coming Soon)
 - Enrollment Service (Coming Soon)
-- Department  Service (Coming Soon)
-- Attendance  Service (Available)
+- Attendance Service (Available)
 
 All services are accessible through a single port (3000).
     `,
@@ -29,6 +29,7 @@ All services are accessible through a single port (3000).
   tags: [
     { name: "Students", description: "Student records and enrollment status" },
     { name: "Courses", description: "Course catalogue management" },
+    { name: "Departments", description: "Department management and organization" },
     { name: "Attendance", description: "Lecturer attendance records" },
     { name: "System", description: "Health check and system endpoints" },
   ],
@@ -343,6 +344,128 @@ All services are accessible through a single port (3000).
         },
       },
     },
+    "/api/departments": {
+      get: {
+        tags: ["Departments"],
+        summary: "List all departments",
+        responses: {
+          200: {
+            description: "Department list",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Department" },
+                },
+              },
+            },
+          },
+          503: { description: "Department service unavailable" },
+        },
+      },
+      post: {
+        tags: ["Departments"],
+        summary: "Create a new department",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/DepartmentInput",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created department",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Department" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          503: { description: "Department service unavailable" },
+        },
+      },
+    },
+    "/api/departments/{id}": {
+      get: {
+        tags: ["Departments"],
+        summary: "Get a department by id",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Department found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Department" },
+              },
+            },
+          },
+          404: { description: "Not found" },
+          503: { description: "Department service unavailable" },
+        },
+      },
+      put: {
+        tags: ["Departments"],
+        summary: "Update an existing department",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/DepartmentUpdate" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Updated department",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Department" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          404: { description: "Not found" },
+          503: { description: "Department service unavailable" },
+        },
+      },
+      delete: {
+        tags: ["Departments"],
+        summary: "Remove a department",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          204: { description: "Deleted" },
+          404: { description: "Not found" },
+          503: { description: "Department service unavailable" },
+        },
+      },
+    },
     "/api/attendance": {
       get: {
         tags: ["Attendance"],
@@ -543,6 +666,29 @@ All services are accessible through a single port (3000).
           courseCode: { type: "string" },
           credits: { type: "integer", minimum: 1 },
           lecturerId: { type: "string" },
+        },
+      },
+      Department: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          department_name: { type: "string" },
+          head_of_department: { type: "string" },
+        },
+      },
+      DepartmentInput: {
+        type: "object",
+        required: ["department_name", "head_of_department"],
+        properties: {
+          department_name: { type: "string" },
+          head_of_department: { type: "string" },
+        },
+      },
+      DepartmentUpdate: {
+        type: "object",
+        properties: {
+          department_name: { type: "string" },
+          head_of_department: { type: "string" },
         },
       },
       Attendance: {
