@@ -34,6 +34,12 @@ const services = {
     pathFilter: "/api/departments",
     name: "Department Service",
   },
+  lecturer: {
+    target: "http://localhost:3008",
+    pathFilter: "/api/lecturers",
+    name: "Lecturer Service",
+  },
+  
 };
 
 // Health check endpoint for the gateway
