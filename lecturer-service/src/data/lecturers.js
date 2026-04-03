@@ -2,12 +2,28 @@ const { randomUUID } = require("crypto");
 
 let lecturers = [
   {
-    id: randomUUID(),
+    id: "LEC-001",
     name: "Dr. Aruna Silva",
     email: "aruna.silva@example.edu",
     departmentId: "DEP-IT",
     specialization: "Machine Learning",
     officeLocation: "Block A, Room 402"
+  },
+  {
+    id: "LEC-002",
+    name: "Prof. Nimal Perera",
+    email: "nimal.perera@example.edu",
+    departmentId: "DEP-CS",
+    specialization: "Distributed Systems",
+    officeLocation: "Block B, Room 211"
+  },
+  {
+    id: "LEC-003",
+    name: "Dr. Sana Fernando",
+    email: "sana.fernando@example.edu",
+    departmentId: "DEP-SE",
+    specialization: "Software Architecture",
+    officeLocation: "Block C, Room 105"
   }
 ];
 

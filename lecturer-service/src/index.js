@@ -21,7 +21,7 @@ app.get("/", (req, res) => res.redirect("/docs"));
 // API Routes
 app.use("/api/lecturers", lecturerRoutes);
 
-const PORT = 8001;
+const PORT = 3007;
 app.listen(PORT, () => {
   console.log(`Lecturer Service UI running at http://localhost:${PORT}/docs`);
 });

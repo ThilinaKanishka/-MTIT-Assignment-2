@@ -9,7 +9,7 @@ This gateway consolidates access to:
 - Student Service (Available)
 - Course Service (Available)
 - Department Service (Available)
-- Lecturer Service (Coming Soon)
+- Lecturer Service (Available)
 - Enrollment Service (Coming Soon)
 - Attendance Service (Available)
 
