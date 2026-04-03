@@ -610,6 +610,20 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+            nullable: true,
+          },
+          dateOfBirth: { type: "string", format: "date", nullable: true },
+          phoneNumber: { type: "string", nullable: true },
+          address: { type: "string", nullable: true },
         },
       },
       StudentInput: {
@@ -624,6 +638,19 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1, default: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
         },
       },
       StudentUpdate: {
@@ -637,6 +664,19 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
         },
       },
       Course: {

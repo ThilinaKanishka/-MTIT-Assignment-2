@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const { createProxyMiddleware, fixRequestBody } = require("http-proxy-middleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger");
 
@@ -74,6 +74,7 @@ Object.keys(services).forEach((serviceKey) => {
         });
       },
       onProxyReq: (proxyReq, req, res) => {
+        fixRequestBody(proxyReq, req);
         console.log(`[${service.name}] ${req.method} ${req.url}`);
       },
     }),
