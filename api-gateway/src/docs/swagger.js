@@ -10,7 +10,7 @@ This gateway consolidates access to:
 - Course Service (Available)
 - Department Service (Available)
 - Lecturer Service (Available)
-- Enrollment Service (Coming Soon)
+- Enrollment Service (Available)
 - Attendance Service (Available)
 
 All services are accessible through a single port (3000).
@@ -30,9 +30,10 @@ All services are accessible through a single port (3000).
     { name: "Students", description: "Student records and enrollment status" },
     { name: "Courses", description: "Course catalogue management" },
     { name: "Departments", description: "Department management and organization" },
+    { name: "Enrollments", description: "Student course enrollment management" },
     { name: "Attendance", description: "Lecturer attendance records" },
     { name: "System", description: "Health check and system endpoints" },
-	  { name: "Lecturers", description: "Lecturer profiles and specialization" },
+    { name: "Lecturers", description: "Lecturer profiles and specialization" },
   ],
   paths: {
     "/health": {
@@ -467,6 +468,128 @@ All services are accessible through a single port (3000).
         },
       },
     },
+    "/api/enrollments": {
+      get: {
+        tags: ["Enrollments"],
+        summary: "List all enrollments",
+        responses: {
+          200: {
+            description: "Enrollment list",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Enrollment" },
+                },
+              },
+            },
+          },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      post: {
+        tags: ["Enrollments"],
+        summary: "Create a new enrollment",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EnrollmentInput",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created enrollment",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+    },
+    "/api/enrollments/{id}": {
+      get: {
+        tags: ["Enrollments"],
+        summary: "Get enrollment by id",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Enrollment found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      put: {
+        tags: ["Enrollments"],
+        summary: "Update enrollment",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/EnrollmentUpdate" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Updated enrollment",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      delete: {
+        tags: ["Enrollments"],
+        summary: "Delete enrollment",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Deleted" },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+    },
     "/api/attendance": {
       get: {
         tags: ["Attendance"],
@@ -589,10 +712,7 @@ All services are accessible through a single port (3000).
         },
       },
     },
-	
-	
-	
-	"/api/lecturers": {
+    "/api/lecturers": {
       get: {
         tags: ["Lecturers"],
         summary: "List all lecturers",
@@ -647,12 +767,6 @@ All services are accessible through a single port (3000).
         }
       }
     },
-	
-	
-	
-	
-	
-	
   },
   components: {
     securitySchemes: {
@@ -675,6 +789,20 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+            nullable: true,
+          },
+          dateOfBirth: { type: "string", format: "date", nullable: true },
+          phoneNumber: { type: "string", nullable: true },
+          address: { type: "string", nullable: true },
         },
       },
       StudentInput: {
@@ -689,6 +817,19 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1, default: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
         },
       },
       StudentUpdate: {
@@ -702,6 +843,19 @@ All services are accessible through a single port (3000).
             enum: ["active", "pending", "inactive", "graduated"],
           },
           year: { type: "integer", minimum: 1 },
+          gender: {
+            type: "string",
+            enum: [
+              "male",
+              "female",
+              "non-binary",
+              "other",
+              "prefer-not-to-say",
+            ],
+          },
+          dateOfBirth: { type: "string", format: "date" },
+          phoneNumber: { type: "string" },
+          address: { type: "string" },
         },
       },
       Course: {
@@ -791,10 +945,7 @@ All services are accessible through a single port (3000).
           timeOut: { type: "string", nullable: true, example: "16:00" },
         },
       },
-	  
-	  
-	  
-	  Lecturer: {
+      Lecturer: {
         type: "object",
         properties: {
           id: { type: "string" },
@@ -826,10 +977,31 @@ All services are accessible through a single port (3000).
           officeLocation: { type: "string" }
         }
       },
-	  
-	  
-	  
-	  
+      Enrollment: {
+        type: "object",
+        properties: {
+          id: { type: "integer" },
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      EnrollmentInput: {
+        type: "object",
+        required: ["student_id", "course_id"],
+        properties: {
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
+        },
+      },
+      EnrollmentUpdate: {
+        type: "object",
+        properties: {
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
+        },
+      },
       Error: {
         type: "object",
         properties: {

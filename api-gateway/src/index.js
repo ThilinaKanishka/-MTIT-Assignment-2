@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const { createProxyMiddleware, fixRequestBody } = require("http-proxy-middleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger");
 
@@ -39,6 +39,11 @@ const services = {
     pathFilter: "/api/lecturers",
     name: "Lecturer Service",
   },
+  enrollment: {
+    target: "http://localhost:3008",
+    pathFilter: "/api/enrollments",
+    name: "Enrollment Service",
+  },
 };
 
 // Health check endpoint for the gateway
@@ -70,6 +75,7 @@ Object.keys(services).forEach((serviceKey) => {
       target: service.target,
       changeOrigin: true,
       logLevel: "debug",
+      pathRewrite: undefined,
       onError: (err, req, res) => {
         console.error(`Proxy error for ${service.name}:`, err.message);
         res.status(503).json({
@@ -79,6 +85,7 @@ Object.keys(services).forEach((serviceKey) => {
         });
       },
       onProxyReq: (proxyReq, req, res) => {
+        fixRequestBody(proxyReq, req);
         console.log(`[${service.name}] ${req.method} ${req.url}`);
       },
     }),
