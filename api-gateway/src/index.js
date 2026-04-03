@@ -34,6 +34,11 @@ const services = {
     pathFilter: "/api/departments",
     name: "Department Service",
   },
+  enrollment: {
+    target: "http://localhost:3008",
+    pathFilter: "/api/enrollments",
+    name: "Enrollment Service",
+  },
 };
 
 // Health check endpoint for the gateway
@@ -65,6 +70,7 @@ Object.keys(services).forEach((serviceKey) => {
       target: service.target,
       changeOrigin: true,
       logLevel: "debug",
+      pathRewrite: undefined,
       onError: (err, req, res) => {
         console.error(`Proxy error for ${service.name}:`, err.message);
         res.status(503).json({
