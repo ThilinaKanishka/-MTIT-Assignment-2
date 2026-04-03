@@ -1,11 +1,58 @@
-const express = require('express');
-const Enrollment = require('../models/enrollment_model');
+const express = require("express");
+
+const {
+  getAll,
+  findById,
+  create,
+  update,
+  remove,
+} = require("../data/enrollments");
 
 const router = express.Router();
 
+function isPositiveInteger(value) {
+  return Number.isInteger(Number(value)) && Number(value) > 0;
+}
+
+function validateEnrollment(req, res, next) {
+  const { student_id, course_id } = req.body;
+  const isCreate = req.method === "POST";
+
+  if (isCreate) {
+    if (student_id === undefined || course_id === undefined) {
+      return res
+        .status(400)
+        .json({ message: "student_id and course_id are required" });
+    }
+  } else {
+    const hasUpdatableField = ["student_id", "course_id"].some(
+      (field) => req.body[field] !== undefined,
+    );
+    if (!hasUpdatableField) {
+      return res
+        .status(400)
+        .json({ message: "Provide at least one field to update" });
+    }
+  }
+
+  if (student_id !== undefined && !isPositiveInteger(student_id)) {
+    return res
+      .status(400)
+      .json({ message: "student_id must be a positive integer" });
+  }
+
+  if (course_id !== undefined && !isPositiveInteger(course_id)) {
+    return res
+      .status(400)
+      .json({ message: "course_id must be a positive integer" });
+  }
+
+  return next();
+}
+
 /**
  * @swagger
- * /enrollments:
+ * /api/enrollments:
  *   post:
  *     summary: Add Enrollment
  *     requestBody:
@@ -23,70 +70,40 @@ const router = express.Router();
  *       201:
  *         description: Enrollment added
  */
-router.post('/', async (req, res) => {
-  try {
-    const { student_id, course_id } = req.body;
+router.post("/", validateEnrollment, (req, res) => {
+  const { student_id, course_id } = req.body;
+  const existingEnrollment = getAll().find(
+    (enrollment) =>
+      enrollment.student_id === Number(student_id) &&
+      enrollment.course_id === Number(course_id),
+  );
 
-    // Validate required fields
-    if (!student_id || !course_id) {
-      return res.status(400).json({
-        error: "Validation failed",
-        message: "Both student_id and course_id are required"
-      });
-    }
-
-    // Check if enrollment already exists
-    const existingEnrollment = await Enrollment.findOne({
-      where: { student_id, course_id }
+  if (existingEnrollment) {
+    return res.status(409).json({
+      message: `Student ${student_id} is already enrolled in course ${course_id}`,
     });
-
-    if (existingEnrollment) {
-      return res.status(409).json({
-        error: "Duplicate enrollment",
-        message: `Student ${student_id} is already enrolled in course ${course_id}`,
-        existing_enrollment: existingEnrollment.toJSON()
-      });
-    }
-
-    const newEnroll = await Enrollment.create({ student_id, course_id });
-    res.status(201).json({
-      message: "Enrollment created successfully",
-      enrollment: newEnroll.toJSON()
-    });
-  } catch (error) {
-    // Handle Sequelize unique constraint error
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).json({
-        error: "Duplicate enrollment",
-        message: "This student is already enrolled in this course"
-      });
-    }
-
-    res.status(500).json({ error: error.message });
   }
+
+  const enrollment = create({ student_id, course_id });
+  res.status(201).json(enrollment);
 });
 
 /**
  * @swagger
- * /enrollments:
+ * /api/enrollments:
  *   get:
  *     summary: Get All Enrollments
  *     responses:
  *       200:
  *         description: List of enrollments
  */
-router.get('/', async (req, res) => {
-  try {
-    const enrollments = await Enrollment.findAll();
-    res.json(enrollments.map(e => e.toJSON()));
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+router.get("/", (req, res) => {
+  res.json(getAll());
 });
 
 /**
  * @swagger
- * /enrollments/{id}:
+ * /api/enrollments/{id}:
  *   get:
  *     summary: Get Enrollment by ID
  *     parameters:
@@ -101,21 +118,17 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Not found
  */
-router.get('/:id', async (req, res) => {
-  try {
-    const enroll = await Enrollment.findByPk(req.params.id);
-    if (!enroll) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    res.json(enroll.toJSON());
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+router.get("/:id", (req, res) => {
+  const enrollment = findById(req.params.id);
+  if (!enrollment) {
+    return res.status(404).json({ message: "Enrollment not found" });
   }
+  res.json(enrollment);
 });
 
 /**
  * @swagger
- * /enrollments/{id}:
+ * /api/enrollments/{id}:
  *   put:
  *     summary: Update Enrollment
  *     parameters:
@@ -141,44 +154,17 @@ router.get('/:id', async (req, res) => {
  *       404:
  *         description: Not found
  */
-router.put('/:id', async (req, res) => {
-  try {
-    const enroll = await Enrollment.findByPk(req.params.id);
-    if (!enroll) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    
-    // Store the before state
-    const before = enroll.toJSON();
-    
-    // Only update fields that are explicitly provided in request body
-    if ('student_id' in req.body) {
-      enroll.student_id = req.body.student_id;
-    }
-    if ('course_id' in req.body) {
-      enroll.course_id = req.body.course_id;
-    }
-    
-    await enroll.save();
-    
-    // Reload from database to ensure consistency
-    const updated = await Enrollment.findByPk(req.params.id);
-    const after = updated.toJSON();
-    
-    // Return before and after states
-    res.json({
-      message: "Enrollment updated successfully",
-      before: before,
-      after: after
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+router.put("/:id", validateEnrollment, (req, res) => {
+  const updated = update(req.params.id, req.body);
+  if (!updated) {
+    return res.status(404).json({ message: "Enrollment not found" });
   }
+  res.json(updated);
 });
 
 /**
  * @swagger
- * /enrollments/{id}:
+ * /api/enrollments/{id}:
  *   delete:
  *     summary: Delete Enrollment
  *     parameters:
@@ -193,20 +179,12 @@ router.put('/:id', async (req, res) => {
  *       404:
  *         description: Not found
  */
-router.delete('/:id', async (req, res) => {
-  try {
-    const enroll = await Enrollment.findByPk(req.params.id);
-    if (!enroll) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    await enroll.destroy();
-    res.json({
-      message: "Enrollment deleted successfully",
-      deleted_id: req.params.id
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+router.delete("/:id", (req, res) => {
+  const removed = remove(req.params.id);
+  if (!removed) {
+    return res.status(404).json({ message: "Enrollment not found" });
   }
+  res.status(204).send();
 });
 
 module.exports = router;

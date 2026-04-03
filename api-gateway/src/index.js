@@ -70,9 +70,7 @@ Object.keys(services).forEach((serviceKey) => {
       target: service.target,
       changeOrigin: true,
       logLevel: "debug",
-      pathRewrite: {
-        "^/api/enrollments": "/enrollments",
-      },
+      pathRewrite: undefined,
       onError: (err, req, res) => {
         console.error(`Proxy error for ${service.name}:`, err.message);
         res.status(503).json({
