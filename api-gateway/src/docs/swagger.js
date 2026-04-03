@@ -9,9 +9,9 @@ This gateway consolidates access to:
 - Student Service (Available)
 - Course Service (Available)
 - Department Service (Available)
+- Lecturer Service (Available)
 - Enrollment Service (Available)
 - Attendance Service (Available)
-- Lecturer Service (Coming Soon)
 
 All services are accessible through a single port (3000).
     `,
@@ -33,6 +33,7 @@ All services are accessible through a single port (3000).
     { name: "Enrollments", description: "Student course enrollment management" },
     { name: "Attendance", description: "Lecturer attendance records" },
     { name: "System", description: "Health check and system endpoints" },
+    { name: "Lecturers", description: "Lecturer profiles and specialization" },
   ],
   paths: {
     "/health": {
@@ -711,6 +712,61 @@ All services are accessible through a single port (3000).
         },
       },
     },
+    "/api/lecturers": {
+      get: {
+        tags: ["Lecturers"],
+        summary: "List all lecturers",
+        responses: {
+          200: {
+            description: "Lecturer list",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Lecturer" } } } }
+          },
+          503: { description: "Lecturer service unavailable" }
+        }
+      },
+      post: {
+        tags: ["Lecturers"],
+        summary: "Create a new lecturer",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/LecturerInput" } } }
+        },
+        responses: {
+          201: { description: "Created" },
+          503: { description: "Lecturer service unavailable" }
+        }
+      }
+    },
+    "/api/lecturers/{id}": {
+      get: {
+        tags: ["Lecturers"],
+        summary: "Get lecturer by ID",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Found", content: { "application/json": { schema: { $ref: "#/components/schemas/Lecturer" } } } },
+          404: { description: "Not found" }
+        }
+      },
+      put: {
+        tags: ["Lecturers"],
+        summary: "Update a lecturer",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/LecturerUpdate" } } } },
+        responses: {
+          200: { description: "Updated" },
+          404: { description: "Not found" }
+        }
+      },
+      delete: {
+        tags: ["Lecturers"],
+        summary: "Remove a lecturer",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          204: { description: "Deleted" },
+          404: { description: "Not found" }
+        }
+      }
+    },
   },
   components: {
     securitySchemes: {
@@ -888,6 +944,38 @@ All services are accessible through a single port (3000).
           timeIn: { type: "string", example: "09:00" },
           timeOut: { type: "string", nullable: true, example: "16:00" },
         },
+      },
+      Lecturer: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string" },
+          specialization: { type: "string" },
+          officeLocation: { type: "string" }
+        }
+      },
+      LecturerInput: {
+        type: "object",
+        required: ["name", "email"],
+        properties: {
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string" },
+          specialization: { type: "string" },
+          officeLocation: { type: "string" }
+        }
+      },
+      LecturerUpdate: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          email: { type: "string", format: "email" },
+          departmentId: { type: "string" },
+          specialization: { type: "string" },
+          officeLocation: { type: "string" }
+        }
       },
       Enrollment: {
         type: "object",
