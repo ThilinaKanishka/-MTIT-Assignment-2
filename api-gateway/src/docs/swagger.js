@@ -9,9 +9,9 @@ This gateway consolidates access to:
 - Student Service (Available)
 - Course Service (Available)
 - Department Service (Available)
-- Lecturer Service (Coming Soon)
-- Enrollment Service (Coming Soon)
+- Enrollment Service (Available)
 - Attendance Service (Available)
+- Lecturer Service (Coming Soon)
 
 All services are accessible through a single port (3000).
     `,
@@ -30,6 +30,7 @@ All services are accessible through a single port (3000).
     { name: "Students", description: "Student records and enrollment status" },
     { name: "Courses", description: "Course catalogue management" },
     { name: "Departments", description: "Department management and organization" },
+    { name: "Enrollments", description: "Student course enrollment management" },
     { name: "Attendance", description: "Lecturer attendance records" },
     { name: "System", description: "Health check and system endpoints" },
   ],
@@ -466,6 +467,128 @@ All services are accessible through a single port (3000).
         },
       },
     },
+    "/api/enrollments": {
+      get: {
+        tags: ["Enrollments"],
+        summary: "List all enrollments",
+        responses: {
+          200: {
+            description: "Enrollment list",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Enrollment" },
+                },
+              },
+            },
+          },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      post: {
+        tags: ["Enrollments"],
+        summary: "Create a new enrollment",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/EnrollmentInput",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created enrollment",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+    },
+    "/api/enrollments/{id}": {
+      get: {
+        tags: ["Enrollments"],
+        summary: "Get enrollment by id",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Enrollment found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      put: {
+        tags: ["Enrollments"],
+        summary: "Update enrollment",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/EnrollmentUpdate" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Updated enrollment",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Enrollment" },
+              },
+            },
+          },
+          400: { description: "Invalid payload" },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+      delete: {
+        tags: ["Enrollments"],
+        summary: "Delete enrollment",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Deleted" },
+          404: { description: "Not found" },
+          503: { description: "Enrollment service unavailable" },
+        },
+      },
+    },
     "/api/attendance": {
       get: {
         tags: ["Attendance"],
@@ -764,6 +887,31 @@ All services are accessible through a single port (3000).
           date: { type: "string", format: "date" },
           timeIn: { type: "string", example: "09:00" },
           timeOut: { type: "string", nullable: true, example: "16:00" },
+        },
+      },
+      Enrollment: {
+        type: "object",
+        properties: {
+          id: { type: "integer" },
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      EnrollmentInput: {
+        type: "object",
+        required: ["student_id", "course_id"],
+        properties: {
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
+        },
+      },
+      EnrollmentUpdate: {
+        type: "object",
+        properties: {
+          student_id: { type: "integer" },
+          course_id: { type: "integer" },
         },
       },
       Error: {
